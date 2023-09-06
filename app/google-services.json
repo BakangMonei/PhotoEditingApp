@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "686278516267",
+    "firebase_url": "https://limegig-project-default-rtdb.firebaseio.com",
+    "project_id": "limegig-project",
+    "storage_bucket": "limegig-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:686278516267:android:a4bc9b71e3d4446839946e",
+        "android_client_info": {
+          "package_name": "com.neizathedev.photovideoapplimegig"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "686278516267-fnjrlaje1o2p528un9d98inu2ausm8vs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaeFhAJF4A0Dz8XgYiPaCT80qxCHTJcVY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "686278516267-34b8ubggnbdp8br7v7jr90a92effvsci.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

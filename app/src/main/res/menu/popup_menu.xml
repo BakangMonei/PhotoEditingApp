@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?><!-- @Author: Monei Bakang Mothuti -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/pay_us"
+        android:title="Payment"/>
+
+    <item
+        android:id="@+id/contact_us"
+        android:title="Contact Us"/>
+    <item
+        android:id="@+id/open_cam"
+        android:title="Camera"/>
+</menu>

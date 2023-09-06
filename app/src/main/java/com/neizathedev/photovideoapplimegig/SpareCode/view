@@ -1,0 +1,144 @@
+package com.neizathedev.photovideoapplimegig.User;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.os.Bundle;
+import android.util.Log;
+import android.webkit.MimeTypeMap;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.VideoView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.neizathedev.photovideoapplimegig.R;
+
+import java.util.List;
+
+public class ViewResourcesActivity extends AppCompatActivity {
+
+    private LinearLayout mediaLayout;
+
+    private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
+    private FirebaseStorage storage;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_view_resources);
+
+        mediaLayout = (LinearLayout) findViewById(R.id.mediaLayout);
+
+        // Firebase
+        db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+        storage = FirebaseStorage.getInstance();
+
+        if (currentUser != null) {
+            displayMediaFiles();
+        }
+    }
+
+    private void displayMediaFiles() {
+        db.collection("user_media")
+                .whereEqualTo("email", currentUser.getEmail())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                            for (DocumentSnapshot document : documents) {
+                                String fileType = document.getString("fileType");
+                                String fileName = document.getString("fileName");
+                                String fileUrl = document.getString("fileUrl");
+
+                                if (fileType != null) {
+                                    if (fileType.equals("image")) {
+                                        displayImage(fileUrl);
+                                    } else if (fileType.equals("video")) {
+                                        displayVideo(fileUrl);
+                                    }
+                                }
+                            }
+                        } else {
+                            Log.d("TAG", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
+
+    private void displayImage(String imageUrl) {
+        ImageView imageView = new ImageView(this);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                getResources().getDimensionPixelSize(R.dimen.image_height),
+                getResources().getDimensionPixelSize(R.dimen.image_width)
+        );
+        imageView.setLayoutParams(layoutParams);
+
+        RequestOptions requestOptions = new RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(R.drawable.baseline_image_24)
+                .error(R.drawable.baseline_security_24);
+
+        Glide.with(this)
+                .load(imageUrl)
+                .apply(requestOptions)
+                .into(imageView);
+
+        LinearLayout linearLayout = new LinearLayout(this);
+        LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        linearLayoutParams.setMargins(0, 16, 0, 0);
+        linearLayout.setLayoutParams(linearLayoutParams);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        linearLayout.addView(imageView);
+
+        mediaLayout.addView(linearLayout);
+    }
+
+    private void displayVideo(String videoUrl) {
+        VideoView videoView = new VideoView(this);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        videoView.setLayoutParams(layoutParams);
+
+        videoView.setVideoPath(videoUrl);
+        videoView.start();
+
+        LinearLayout linearLayout = new LinearLayout(this);
+        LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        linearLayoutParams.setMargins(0, 16, 0, 0);
+        linearLayout.setLayoutParams(linearLayoutParams);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        linearLayout.addView(videoView);
+
+        mediaLayout.addView(linearLayout);
+    }
+
+
+}

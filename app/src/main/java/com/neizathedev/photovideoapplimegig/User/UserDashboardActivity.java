@@ -1,0 +1,363 @@
+package com.neizathedev.photovideoapplimegig.User;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.neizathedev.photovideoapplimegig.Authentication.LoginActivity;
+import com.neizathedev.photovideoapplimegig.Tools.ContactUsActivity;
+import com.neizathedev.photovideoapplimegig.Tools.PhotoCameraEditorActivity;
+import com.neizathedev.photovideoapplimegig.Tools.SettingsActivity;
+import com.neizathedev.photovideoapplimegig.Tools.PhotoEditorActivity;
+import com.neizathedev.photovideoapplimegig.R;
+import com.neizathedev.photovideoapplimegig.Tools.VideoEditorActivity;
+
+/**
+ * @Author: Monei Bakang Mothuti
+ * @Date: Wednesday July 2023
+ * @Time: 9:29 PM
+ */
+public class UserDashboardActivity extends AppCompatActivity {
+    CardView profileCardView, settingsCardView, galleryCardView, draftsCardView, editImageCardView, editVideoCardView;
+    TextView profileTextView, settingsTextView, galleryTextView, draftsTextView, editImageTextView, editVideoTextView, usernameTextView;
+    ImageView profileImageView, settingsImageView, galleryImageView, draftsImageView, editImageImageView, editVideoImageView, logoutBtn, menuBtn;
+
+    /********************* Google Stuff ************************/
+    private GoogleSignInOptions gso;
+    private GoogleSignInClient gsc;
+    /*********************************************/
+
+    /*********************************************/
+    // Firebase Stuff
+    FirebaseAuth firebaseAuth;
+    FirebaseFirestore mFirestore;
+    String UserId;
+    private static final Object TAG = null;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_user_dashboard);
+
+
+        /********************** MENU Option ***********************/
+        menuBtn = (ImageView) findViewById(R.id.menuBtn);
+
+        menuBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PopupMenu popupMenu = new PopupMenu(UserDashboardActivity.this, menuBtn);
+
+                popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
+                MenuItem pay = popupMenu.getMenu().findItem(R.id.pay_us);
+                MenuItem contactUs = popupMenu.getMenu().findItem(R.id.contact_us);
+                MenuItem cam = popupMenu.getMenu().findItem(R.id.open_cam);
+
+
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        if (menuItem.getItemId() == R.id.pay_us) {
+                            goToPay();
+                            return true;
+                        }
+                        if (menuItem.getItemId() == R.id.contact_us) {
+                            goToContactUs();
+                            return true;
+                        }
+                        if (menuItem.getItemId() == R.id.open_cam) {
+                            goToCam();
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+
+                popupMenu.show();
+            }
+        });
+
+
+        /******************** DONE *************************/
+        // Profile Activity
+        profileCardView = (CardView) findViewById(R.id.profileCardView);
+        profileTextView = (TextView) findViewById(R.id.profileTextView);
+        profileImageView = (ImageView) findViewById(R.id.profileImageView);
+
+        profileCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gotoProfile();
+            }
+        });
+
+        profileTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gotoProfile();
+            }
+        });
+
+        profileImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gotoProfile();
+            }
+        });
+
+        /******************** DONE *************************/
+        // Settings Activity
+        settingsCardView = (CardView) findViewById(R.id.settingsCardView);
+        settingsTextView = (TextView) findViewById(R.id.settingsTextView);
+        settingsImageView = (ImageView) findViewById(R.id.settingsImageView);
+
+        settingsCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToSettings();
+            }
+        });
+
+        settingsTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToSettings();
+            }
+        });
+
+        settingsImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToSettings();
+            }
+        });
+
+        /******************** DONE *************************/
+        // Uploading to Firebase Gallery Activity
+        galleryCardView = (CardView) findViewById(R.id.galleryCardView);
+        galleryTextView = (TextView) findViewById(R.id.galleryTextView);
+        galleryImageView = (ImageView) findViewById(R.id.galleryImageView);
+
+        galleryCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToGallery();
+            }
+        });
+        galleryTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToGallery();
+            }
+        });
+        galleryImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToGallery();
+            }
+        });
+
+        /******************** DONE *************************/
+        // Drafts Activity
+        draftsCardView = (CardView) findViewById(R.id.draftsCardView);
+        draftsImageView = (ImageView) findViewById(R.id.draftsImageView);
+        draftsTextView = (TextView) findViewById(R.id.draftsTextView);
+
+        draftsCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToDrafts();
+            }
+        });
+        draftsImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToDrafts();
+            }
+        });
+        draftsTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToDrafts();
+            }
+        });
+
+        /******************** DONE *************************/
+        // EditImage Activity
+        editImageCardView = (CardView) findViewById(R.id.editImageCardView);
+        editImageImageView = (ImageView) findViewById(R.id.editImageImageView);
+        editImageTextView = (TextView) findViewById(R.id.editImageTextView);
+
+        editImageCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToImageEdit();
+            }
+        });
+        editImageImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToImageEdit();
+            }
+        });
+        editImageTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToImageEdit();
+            }
+        });
+
+        /******************** DONE *************************/
+        // editVideoImageView
+        editVideoCardView = (CardView) findViewById(R.id.editVideoCardView);
+        editVideoTextView = (TextView) findViewById(R.id.editVideoTextView);
+        editVideoImageView = (ImageView) findViewById(R.id.editVideoImageView);
+
+        editVideoCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToVideoEdit();
+            }
+        });
+
+        editVideoTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToVideoEdit();
+            }
+        });
+
+        editVideoImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToVideoEdit();
+            }
+        });
+
+        /******************** DONE *************************/
+        // username display
+        usernameTextView = (TextView) findViewById(R.id.usernameTextView);
+
+        //Firebase Instance
+        firebaseAuth = FirebaseAuth.getInstance();
+        UserId = firebaseAuth.getCurrentUser().getUid();
+        mFirestore = FirebaseFirestore.getInstance();
+
+
+        //Check If User is logged In
+        if (UserId == null) {
+            Intent intent = new Intent(UserDashboardActivity.this, LoginActivity.class);
+            startActivity(intent);
+        }
+
+        //Fetch users from database and display their user name in a textview
+        mFirestore.collection("user").document(UserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String user_name = documentSnapshot.getString("username");
+                usernameTextView.setText(user_name);
+            }
+        });
+        /*********************************************/
+
+        /******************** Google Log-in *************************/
+        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        gsc = GoogleSignIn.getClient(this, gso);
+
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account != null) {
+            String Name = account.getDisplayName();
+            String Email = account.getEmail();
+
+            usernameTextView.setText(Name);
+            // mail.setText(Email);
+        }
+
+        /******************** DONE *************************/
+        // Signing out
+        logoutBtn = (ImageView) findViewById(R.id.logoutBtn);
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SignOut();
+            }
+        });
+        /******************* ENDS HERE **************************/
+    }
+
+    public void gotoProfile() {
+        Intent x = new Intent(UserDashboardActivity.this, ProfileActivity.class);
+        startActivity(x);
+    }
+
+    public void goToImageEdit() {
+        Intent a = new Intent(UserDashboardActivity.this, PhotoCameraEditorActivity.class);
+        startActivity(a);
+    }
+
+    public void goToSettings() {
+        Intent s = new Intent(UserDashboardActivity.this, SettingsActivity.class);
+        startActivity(s);
+    }
+
+    public void goToDrafts() {
+        Intent d = new Intent(UserDashboardActivity.this, ViewResourcesActivity.class);
+        startActivity(d);
+    }
+
+    public void goToGallery() {
+        Intent p = new Intent(UserDashboardActivity.this, GalleryActivity.class);
+        startActivity(p);
+    }
+
+    private void SignOut() {
+        gsc.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                finish();
+                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+            }
+        });
+    }
+
+    public void goToPay() {
+        Intent x = new Intent(UserDashboardActivity.this, PaymentActivity.class);
+        Toast.makeText(UserDashboardActivity.this, "You have clicked on Pay", Toast.LENGTH_SHORT).show();
+        startActivity(x);
+    }
+
+    public void goToContactUs() {
+        Intent x = new Intent(UserDashboardActivity.this, ContactUsActivity.class);
+        Toast.makeText(UserDashboardActivity.this, "You have clicked on Contact Us", Toast.LENGTH_SHORT).show();
+        startActivity(x);
+    }
+
+    public void goToVideoEdit() {
+        Intent v = new Intent(UserDashboardActivity.this, VideoEditorActivity.class);
+        startActivity(v);
+    }
+
+    public void goToCam(){
+        Intent g = new Intent(UserDashboardActivity.this, PhotoEditorActivity.class);
+        startActivity(g);
+    }
+}

@@ -1,0 +1,24 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+        // Added here
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        // Added here
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+rootProject.name = "Photo Video App LimeGig"
+include ':app'
